@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Handshake</title>
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: #16211f;
+  color: #eef2ef;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 430px; margin: 0 auto; padding: 18px 16px 28px; }
+.head { display: block; overflow: hidden; padding-bottom: 12px; }
+.head .titles { float: left; width: calc(100% - 92px); }
+.kicker { margin: 0; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #9fb1aa; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 16px; line-height: 1.25; font-weight: 700; color: #f4f8f5; }
+.attempts { float: right; text-align: right; border: 1px solid #2c3c39; background: #1d2b28; border-radius: 6px; padding: 7px 12px; }
+.attempts span { display: block; font-size: 11px; color: #9fb1aa; font-weight: 700; }
+.attempts strong { display: block; font-size: 20px; color: #f4f8f5; }
+.stage { position: relative; height: 300px; overflow: hidden; border: 1px solid #2c3c39; background: #1b2926; border-radius: 6px; }
+.floor { position: absolute; left: 0; right: 0; bottom: 0; height: 78px; background: #223231; border-top: 1px solid #2c3c39; }
+.scene { position: absolute; left: 50%; bottom: 0; width: 300px; height: 300px; margin-left: -150px; }
+.px { position: absolute; }
+.card { border: 1px solid #2c3c39; background: #1d2b28; border-radius: 6px; padding: 14px; margin-top: 14px; }
+.card .kicker { margin-bottom: 8px; }
+.quote { margin: 0; font-size: 19px; line-height: 1.35; min-height: 74px; color: #f4f8f5; font-weight: 500; }
+.quote b { font-weight: 800; }
+.note { margin: 10px 0 0; border: 1px solid #2c3c39; background: #223231; border-radius: 6px; padding: 9px 12px; font-size: 13px; color: #cfdcd6; font-weight: 500; }
+.tiles { margin-top: 12px; overflow: hidden; }
+.tile { float: left; width: 33.333%; }
+.tile div { margin-right: 8px; border: 1px solid #2c3c39; background: #1b2926; border-radius: 6px; padding: 10px; min-height: 66px; }
+.tile:last-child div { margin-right: 0; }
+.tile small { display: block; font-size: 11px; color: #9fb1aa; font-weight: 700; }
+.tile p { margin: 12px 0 0; font-size: 12px; font-weight: 700; color: #f4f8f5; }
+.tile p.yes { color: #7fd1ae; }
+.label { margin: 16px 0 8px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #9fb1aa; font-weight: 700; }
+button.choice {
+  display: block; width: 100%; text-align: left; margin-bottom: 8px;
+  border: 1px solid #38504b; background: #223231; color: #eef2ef;
+  border-radius: 6px; padding: 14px; font: inherit; font-size: 14px; line-height: 1.35; font-weight: 600;
+  cursor: pointer; -webkit-appearance: none; appearance: none;
+}
+button.choice:active { background: #2c403c; }
+button.choice .t { font-size: 16px; font-weight: 700; }
+button.choice .d { display: block; margin-top: 3px; font-size: 12px; font-weight: 500; color: #9fb1aa; }
+.actions { overflow: hidden; margin-top: 14px; }
+.actions button { float: left; width: 48%; margin: 0 4% 0 0; border-radius: 6px; padding: 14px 10px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; -webkit-appearance: none; appearance: none; }
+.actions button.again { border: 1px solid #7fd1ae; background: #7fd1ae; color: #14231f; }
+.actions button.share { margin-right: 0; border: 1px solid #38504b; background: #1d2b28; color: #eef2ef; }
+.end p.big { margin: 0; font-size: 22px; line-height: 1.25; font-weight: 700; color: #f4f8f5; }
+.end p.sub { margin: 12px 0 0; font-size: 14px; line-height: 1.55; color: #b9c8c2; }
+.linkrow { margin-top: 16px; text-align: center; }
+.linkrow a { color: #7fd1ae; font-size: 14px; font-weight: 700; text-decoration: underline; }
+.shake { position: absolute; border: 1px solid #2c3c39; background: #7fd1ae; border-radius: 6px; }
+.noscript { padding: 24px; font-size: 15px; }
+.hands { position: absolute; left: 50%; bottom: 124px; margin-left: -56px; width: 112px; height: 68px;
+  -webkit-animation: pairshake 900ms ease-in-out both; animation: pairshake 900ms ease-in-out both; }
+.hands .hl { -webkit-animation: handleft 560ms ease-out both; animation: handleft 560ms ease-out both; }
+.hands .hr { -webkit-animation: handright 560ms ease-out both; animation: handright 560ms ease-out both; }
+.hands .grip { -webkit-animation: grip 720ms ease-out both; animation: grip 720ms ease-out both; }
+@-webkit-keyframes handleft { 0% { -webkit-transform: translateX(-42px); opacity: 0; } 45% { opacity: 1; } 100% { -webkit-transform: translateX(0); opacity: 1; } }
+@keyframes handleft { 0% { transform: translateX(-42px); opacity: 0; } 45% { opacity: 1; } 100% { transform: translateX(0); opacity: 1; } }
+@-webkit-keyframes handright { 0% { -webkit-transform: translateX(42px); opacity: 0; } 45% { opacity: 1; } 100% { -webkit-transform: translateX(0); opacity: 1; } }
+@keyframes handright { 0% { transform: translateX(42px); opacity: 0; } 45% { opacity: 1; } 100% { transform: translateX(0); opacity: 1; } }
+@-webkit-keyframes pairshake { 0%,40% { -webkit-transform: translateY(0); } 55% { -webkit-transform: translateY(5px); } 70% { -webkit-transform: translateY(-4px); } 85% { -webkit-transform: translateY(3px); } 100% { -webkit-transform: translateY(0); } }
+@keyframes pairshake { 0%,40% { transform: translateY(0); } 55% { transform: translateY(5px); } 70% { transform: translateY(-4px); } 85% { transform: translateY(3px); } 100% { transform: translateY(0); } }
+@-webkit-keyframes grip { 0% { -webkit-transform: scale(0.85); opacity: 0; } 50% { -webkit-transform: scale(1.1); opacity: 1; } 100% { -webkit-transform: scale(1); opacity: 1; } }
+@keyframes grip { 0% { transform: scale(0.85); opacity: 0; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="titles">
+      <p class="kicker">The handshake</p>
+      <h1>Better terms are won, not handed down. Demand better terms than the King offers!</h1>
+    </div>
+    <div class="attempts"><span>Attempts</span><strong id="attempts">4</strong></div>
+  </div>
+  <div class="stage"><div class="floor"></div><div class="scene" id="scene"></div></div>
+  <div id="panel"><noscript><p class="noscript">This game needs JavaScript. Please enable it and reload the page.</p></noscript></div>
+</div>
+<script type="text/javascript">
+/* The Handshake - standalone, no external resources, ES5 only. */
+(function () {
+  var CONFLICT_URL = "https://www.unionen.se/";
+  var ACTION_URL = "https://www.unionen.se/en/news/unionen-gives-notice-industrial-action-king";
+
+  var SAME = "That is what he already offers. No step up, no agreement.";
+  var FAR = "Far beyond the present terms. He walks away from that one.";
+
+  var TOPICS = {
+    stability: { label: "Stability", desc: "A dependable workplace" },
+    influence: { label: "Influence", desc: "A voice in the room" },
+    transparency: { label: "Transparency", desc: "Clear and open decisions" }
+  };
+  var ORDER = ["stability", "influence", "transparency"];
+
+  function line(id, topic, before, keyword, after, subject, best, bestNote, same, far) {
+    return {
+      id: id, topic: topic, before: before, keyword: keyword, after: after, subject: subject,
+      demands: [
+        { id: "a", text: best, better: true, note: bestNote },
+        { id: "b", text: same, better: false, note: SAME },
+        { id: "c", text: far, better: false, note: FAR }
+      ]
+    };
+  }
+
+  var LINES = [
+    line("s1", "stability", "Most of you already have ", "permanent employment", ", when we can arrange it.", "permanent employment",
+      "Permanent employment written in as the default for every role.",
+      "One clear step up: from when we can to as a rule.",
+      "Permanent contracts offered when the company can arrange it.",
+      "Lifetime employment guaranteed for every employee, no exceptions."),
+    line("s2", "stability", "We already share our ", "staffing plan", " with you each spring.", "the staffing plan",
+      "Staffing levels reviewed together with the union before they are set.",
+      "A step up: from being shown the plan to shaping it.",
+      "The staffing plan presented to staff every spring.",
+      "No staffing decision without union approval, ever."),
+    line("s3", "stability", "Everyone already has the legal ", "notice period", " in their contract.", "notice periods",
+      "One extra month of notice beyond the legal minimum.",
+      "Somewhat better than the law, and written down.",
+      "The legal notice period restated in every contract.",
+      "Two years of notice for every employee."),
+    line("i1", "influence", "You already elect ", "representatives", ", and they may sit in and listen.", "employee representatives",
+      "Representatives with the right to negotiate, not only to listen.",
+      "A step up: from attending to negotiating.",
+      "Representatives invited to listen in on the meetings.",
+      "Representatives holding a veto over all management decisions."),
+    line("i2", "influence", "We already hold a ", "consultation", " when we judge a change to be large.", "consultation",
+      "Consultation before every change, on a fixed timeline.",
+      "Somewhat better: not left to management's judgement.",
+      "Consultation whenever management finds the change large.",
+      "All company decisions moved to a staff vote."),
+    line("i3", "influence", "Staff proposals are already noted in the ", "meeting minutes", ".", "how staff proposals are handled",
+      "Every proposal answered in writing within ten working days.",
+      "A step up: from noted to answered.",
+      "Proposals written into the minutes of each meeting.",
+      "Every staff proposal carried out as submitted."),
+    line("t1", "transparency", "Each ", "salary band", " is already shown to anyone who asks.", "salary bands",
+      "Salary bands published, with criteria agreed in negotiation.",
+      "Somewhat better: open by default, and agreed together.",
+      "Salary bands shown to employees on request.",
+      "Every individual salary published with names attached."),
+    line("t2", "transparency", "The ", "overtime rules", " are already written down in the handbook.", "the overtime rules",
+      "Overtime pay and limits set in the agreement, not in the handbook.",
+      "A step up: rules both parties must keep.",
+      "The overtime rules kept in the handbook for all to read.",
+      "Overtime banned outright, at any pay."),
+    line("t3", "transparency", "We already explain the ", "reasons for each decision", " once it is made.", "reasons for decisions",
+      "Decisions and their grounds shared with the union beforehand.",
+      "Somewhat better: in time to respond, not after the fact.",
+      "Decisions explained to staff after they are made.",
+      "Full access to every document the board has ever held.")
+  ];
+
+  var ATTEMPTS_TOTAL = 4;
+  var state;
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function shuffle(list) {
+    var copy = list.slice(0), i, j, t;
+    for (i = copy.length - 1; i > 0; i--) {
+      j = Math.floor(Math.random() * (i + 1));
+      t = copy[i]; copy[i] = copy[j]; copy[j] = t;
+    }
+    return copy;
+  }
+
+  function available() {
+    var out = [], i;
+    for (i = 0; i < ORDER.length; i++) {
+      if (state.agreed.indexOf(ORDER[i]) === -1) { out.push(ORDER[i]); }
+    }
+    return out;
+  }
+
+  function chooseLine(topics, previousId) {
+    var topic = pick(topics) || "stability";
+    var pool = [], fresh = [], i;
+    for (i = 0; i < LINES.length; i++) {
+      if (LINES[i].topic === topic) {
+        pool.push(LINES[i]);
+        if (LINES[i].id !== previousId) { fresh.push(LINES[i]); }
+      }
+    }
+    return pick(fresh.length ? fresh : pool) || LINES[0];
+  }
+
+  function reset() {
+    state = {
+      agreed: [], attempts: ATTEMPTS_TOTAL, intro: "", note: "",
+      phase: "playing", step: "topic", demands: [], handshake: false, shareLabel: "Share"
+    };
+    state.line = chooseLine(ORDER);
+    render();
+  }
+
+  function esc(text) {
+    return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function box(color, left, bottom, w, h, extra) {
+    return '<div class="px" style="left:' + left + 'px;bottom:' + bottom + 'px;width:' + w + 'px;height:' + h + 'px;background:' + color + ';' + (extra || '') + '"></div>';
+  }
+
+  var SKIN = "#d7b49a", ROBE = "#3f6f63", HAIR = "#3a2a20";
+  var CROWN = "#c9a45c";
+  var DESK = "#2f4a45", DARK = "#24352f", GREEN = "#7fd1ae";
+
+  function kingScene(handshake) {
+    var s = "";
+    /* desk and chair */
+    s += box(DARK, 76, 8, 148, 92);
+    s += box(DESK, 22, 54, 256, 62, "border:1px solid #2c3c39;");
+    /* body */
+    s += box(ROBE, 75, 56, 150, 118, "border:1px solid #2c3c39;");
+    s += box("#e9eeea", 123, 56, 54, 118);
+    s += box(DARK, 141, 56, 18, 118);
+    /* arms */
+    s += box(ROBE, 28, 105, 86, 20);
+    s += box(ROBE, 186, 100, 86, 20);
+    s += box(SKIN, 18, 97, 24, 24);
+    s += box(SKIN, 258, 92, 24, 24);
+    /* neck + head */
+    s += box(SKIN, 131, 151, 38, 31);
+    s += box(SKIN, 106, 170, 88, 79, "border:1px solid #2c3c39;");
+    /* ears */
+    s += box(SKIN, 99, 199, 7, 25);
+    s += box(SKIN, 194, 199, 7, 25);
+    /* hair sides + fringe */
+    s += box(HAIR, 106, 235, 88, 14);
+    s += box(HAIR, 106, 213, 9, 22);
+    s += box(HAIR, 185, 213, 9, 22);
+    /* brows */
+    s += box(HAIR, 124, 214, 10, 7);
+    s += box(HAIR, 166, 214, 10, 7);
+    /* eyes */
+    s += box("#243230", 127, 205, 5, 6);
+    s += box("#243230", 168, 205, 5, 6);
+    /* nose */
+    s += box("#c39f86", 146, 196, 8, 13);
+    /* mustache */
+    s += box(HAIR, 130, 187, 18, 8);
+    s += box(HAIR, 152, 187, 18, 8);
+    s += box(HAIR, 144, 190, 12, 8);
+    /* mouth + beard shadow */
+    s += box("#a9755f", 140, 181, 20, 4);
+    s += box(HAIR, 138, 174, 24, 4);
+    /* crown */
+    s += box(CROWN, 104, 245, 92, 12, "border:1px solid #2c3c39;");
+    s += box(CROWN, 104, 255, 18, 16);
+    s += box(CROWN, 128, 255, 20, 24);
+    s += box(CROWN, 152, 255, 20, 24);
+    s += box(CROWN, 178, 255, 18, 16);
+    s += box("#e5d3a0", 145, 260, 10, 7);
+    if (handshake) {
+      s += '<div class="hands">' +
+        '<div class="px hl" style="left:0;bottom:24px;width:46px;height:18px;background:' + SKIN + ';border:1px solid #2c3c39;border-radius:3px;"></div>' +
+        '<div class="px hl" style="left:32px;bottom:16px;width:26px;height:30px;background:' + SKIN + ';border:1px solid #2c3c39;border-radius:3px;"></div>' +
+        '<div class="px hr" style="right:0;bottom:24px;width:46px;height:18px;background:#e6ecea;border:1px solid #2c3c39;border-radius:3px;"></div>' +
+        '<div class="px hr" style="right:32px;bottom:16px;width:26px;height:30px;background:' + SKIN + ';border:1px solid #2c3c39;border-radius:3px;"></div>' +
+        '<div class="px grip" style="left:36px;bottom:12px;width:40px;height:38px;background:' + GREEN + ';border:1px solid #2c3c39;border-radius:3px;"></div>' +
+        '</div>';
+    }
+    return s;
+  }
+
+  function emptyOffice() {
+    var s = "";
+    s += box(DARK, 76, 8, 148, 92);
+    s += box(DESK, 22, 56, 256, 62, "border:1px solid #2c3c39;");
+    s += box("#3f6f63", 190, 105, 90, 18, "border-radius:9px;");
+    s += box(GREEN, 264, 100, 28, 28, "border-radius:14px;border:1px solid #2c3c39;");
+    s += box("#223231", 30, 168, 36, 64, "border:1px solid #2c3c39;border-radius:3px;");
+    s += box("#1b2926", 40, 184, 64, 28, "border:1px solid #2c3c39;border-radius:3px;");
+    return s;
+  }
+
+  function tiles() {
+    var s = '<div class="tiles">', i, topic, agreed;
+    for (i = 0; i < ORDER.length; i++) {
+      topic = ORDER[i];
+      agreed = state.agreed.indexOf(topic) !== -1;
+      s += '<div class="tile"><div><small>' + TOPICS[topic].label + '</small>' +
+        '<p class="' + (agreed ? 'yes' : '') + '">' + (agreed ? 'Agreed' : 'Open') + '</p></div></div>';
+    }
+    return s + '</div>';
+  }
+
+  function render() {
+    document.getElementById("attempts").innerHTML = String(state.attempts);
+    document.getElementById("scene").innerHTML =
+      state.phase === "lost" ? emptyOffice() : kingScene(state.handshake);
+
+    var panel = document.getElementById("panel");
+    var s = "", i, topic, list;
+
+    if (state.phase === "playing") {
+      s += '<div class="card"><p class="kicker">Already offered to employees</p>' +
+        '<p class="quote">\u201C' + esc(state.line.before) + '<b>' + esc(state.line.keyword) + '</b>' +
+        esc(state.line.after) + '\u201D</p></div>';
+      if (state.intro) { s += '<p class="note">' + esc(state.intro) + '</p>'; }
+      if (state.note) { s += '<p class="note">' + esc(state.note) + '</p>'; }
+      s += tiles();
+
+      if (state.step === "topic") {
+        s += '<p class="label">Which term does this belong under?</p>';
+        list = available();
+        for (i = 0; i < list.length; i++) {
+          topic = list[i];
+          s += '<button type="button" class="choice" data-topic="' + topic + '">' +
+            '<span class="t">' + TOPICS[topic].label + '</span>' +
+            '<span class="d">' + TOPICS[topic].desc + '</span></button>';
+        }
+      } else {
+        s += '<p class="label">Demand somewhat better terms on ' +
+          TOPICS[state.line.topic].label.toLowerCase() + '</p>';
+        for (i = 0; i < state.demands.length; i++) {
+          s += '<button type="button" class="choice" data-demand="' + i + '">' +
+            esc(state.demands[i].text) + '</button>';
+        }
+      }
+    } else {
+      var won = state.phase === "won";
+      s += '<div class="card end"><p class="big">' +
+        (won ? "A collective agreement. Signed by both parties."
+             : "We are still here. The hand is still extended.") + '</p>';
+      if (won) {
+        s += '<p class="sub">Better terms are not handed down. They are written down, negotiated together, and they hold for everyone.</p>';
+      }
+      s += '</div>';
+      s += '<div class="actions"><button type="button" class="again" data-action="again">Play again</button>' +
+        '<button type="button" class="share" data-action="share">' + esc(state.shareLabel) + '</button></div>';
+      s += '<p class="linkrow"><a href="' + (won ? ACTION_URL : CONFLICT_URL) + '" target="_blank" rel="noreferrer">' +
+        (won ? "Unionen gives notice of industrial action at King"
+             : "Unionen's page about the conflict at King") + '</a></p>';
+    }
+    panel.innerHTML = s;
+  }
+
+  function loseAttempt(message) {
+    state.note = message;
+    state.attempts = state.attempts - 1;
+    state.handshake = false;
+    state.step = "topic";
+    state.demands = [];
+    if (state.attempts <= 0) { state.phase = "lost"; render(); return; }
+    state.line = chooseLine(available(), state.line.id);
+    render();
+  }
+
+  function chooseTopic(topic) {
+    if (state.phase !== "playing" || state.step !== "topic") { return; }
+    if (!state.intro) {
+      state.intro = "The king described " + state.line.subject + ". That belongs under " +
+        TOPICS[state.line.topic].label.toLowerCase() + ".";
+    }
+    if (topic === state.line.topic) {
+      state.note = "";
+      state.demands = shuffle(state.line.demands);
+      state.step = "demand";
+      render();
+      return;
+    }
+    loseAttempt("Those terms belong under " + TOPICS[state.line.topic].label.toLowerCase() + ". An attempt is spent.");
+  }
+
+  function chooseDemand(index) {
+    if (state.phase !== "playing" || state.step !== "demand") { return; }
+    var demand = state.demands[index];
+    if (!demand) { return; }
+    if (!demand.better) { loseAttempt(demand.note); return; }
+
+    state.agreed.push(state.line.topic);
+    state.handshake = true;
+    state.step = "topic";
+    state.demands = [];
+    state.note = "Agreed. One step better than what was already in place.";
+    render();
+
+    var done = state.agreed.length === ORDER.length;
+    setTimeout(function () {
+      state.handshake = false;
+      if (done) { state.phase = "won"; }
+      else { state.line = chooseLine(available(), state.line.id); }
+      render();
+    }, 920);
+  }
+
+  function share() {
+    var data = {
+      title: "The Handshake",
+      text: "I played The Handshake, a quiet negotiation game about reaching a collective agreement."
+    };
+    try {
+      if (navigator.share) { navigator.share(data); return; }
+      if (navigator.clipboard && window.location && window.location.href) {
+        navigator.clipboard.writeText(window.location.href);
+        state.shareLabel = "Link copied";
+        render();
+        setTimeout(function () { state.shareLabel = "Share"; render(); }, 1600);
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  function onClick(event) {
+    var node = event.target;
+    while (node && node.nodeName !== "BUTTON") { node = node.parentNode; }
+    if (!node || node.nodeName !== "BUTTON") { return; }
+    var topic = node.getAttribute("data-topic");
+    var demand = node.getAttribute("data-demand");
+    var action = node.getAttribute("data-action");
+    if (topic) { chooseTopic(topic); }
+    else if (demand !== null) { chooseDemand(parseInt(demand, 10)); }
+    else if (action === "again") { reset(); }
+    else if (action === "share") { share(); }
+  }
+
+  try {
+    document.getElementById("panel").onclick = onClick;
+    reset();
+  } catch (e) {
+    document.getElementById("panel").innerHTML =
+      '<p class="noscript">Something went wrong starting the game: ' + esc(e && e.message) + '</p>';
+  }
+})();
+</script>
+</body>
+</html>
